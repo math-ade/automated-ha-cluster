@@ -1,0 +1,23 @@
+---
+- name: Autoscale and Self-Heal Cluster
+  hosts: loadbalancer
+  become: yes
+  tasks:
+    - name: Disable Node 2 if CPU is overloaded
+      lineinfile:
+        path: /etc/haproxy/haproxy.cfg
+        regexp: 'server node2'
+        line: '    # server node2 192.168.56.51:80 check' # We "comment it out" to stop traffic
+      notify: Reload HAProxy
+
+    - name: Force Restart Node 2 App
+      delegate_to: 192.168.56.51
+      systemd:
+        name: node_exporter
+        state: restarted
+
+  handlers:
+    - name: Reload HAProxy
+      systemd:
+        name: haproxy
+        state: reloaded

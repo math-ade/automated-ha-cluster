@@ -1,0 +1,48 @@
+---
+- name: Zero-Downtime Blue/Green Deployment
+  hosts: node3
+  become: yes
+  tasks:
+    - name: Deploy Version 2.0 to Green Node
+      ansible.builtin.copy:
+        src: ~/index_v2.html
+        dest: /home/maths/html_data/index.html
+
+- name: Update Load Balancer Policy
+  hosts: loadbalancer
+  become: yes
+  tasks:
+    - name: Shift Traffic to Green (Node 3)
+      ansible.builtin.copy:
+        content: |
+          global
+              log /dev/log local0
+              chroot /var/lib/haproxy
+              pidfile /var/run/haproxy.pid
+              user haproxy
+              group haproxy
+              daemon
+
+          defaults
+              mode http
+              log global
+              option httplog
+              timeout connect 5000ms
+              timeout client 50000ms
+              timeout server 50000ms
+
+          frontend main
+              bind *:80
+              default_backend green_pool
+
+          backend green_pool
+              balance roundrobin
+              server node3 192.168.56.103:8080 check
+              server node2 192.168.56.51:8080 backup
+        dest: /etc/haproxy/haproxy.cfg
+
+    - name: Reload HAProxy
+      ansible.builtin.service:
+        name: haproxy
+        state: reloaded
+

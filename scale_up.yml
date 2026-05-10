@@ -1,0 +1,19 @@
+---
+- name: Scale Up and Restore Cluster
+  hosts: loadbalancer
+  become: yes
+  tasks:
+    - name: Enable Node 2 (Remove the comment)
+      lineinfile:
+        path: /etc/haproxy/haproxy.cfg
+        regexp: '^(\s*)#\s*server node2'
+        line: '    server node2 192.168.56.51:80 check'
+        backrefs: yes
+      notify: Reload HAProxy
+
+  handlers:
+    - name: Reload HAProxy
+      systemd:
+        name: haproxy
+        state: reloaded
+

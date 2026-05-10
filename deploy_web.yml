@@ -1,0 +1,14 @@
+---
+- name: Setup Web Cluster
+  hosts: all
+  become: true
+  tasks:
+    - name: Start the Nginx container
+      command: podman run -dt -p 8080:80 --name my-web nginx
+      register: output
+      ignore_errors: yes
+
+    - name: Show status
+      debug:
+        msg: "Container is running on port 8080"
+

@@ -1,4 +1,5 @@
-# 🚀 Automated HA Cluster & Observability Stack
+# 🚀 Automated HA Cluster & Observability Stack<img width="1408" height="768" alt="image_5b989db9" src="https://github.com/user-attachments/assets/46f467ef-4d11-48a1-8316-ad969c859765" />
+
 
 A production-grade, 4-node high-availability infrastructure managed via **Ansible** with a proactive monitoring and self-healing system.
 
